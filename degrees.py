@@ -69,13 +69,12 @@ def main():
     if target is None:
         sys.exit("Person not found.")
 
-    shortest_path(source, target)
     path = shortest_path(source, target)
 
     if path is None:
         print("Not connected.")
     else:
-        degrees = len(path)
+        degrees = len(path[0])
         print(f"{degrees} degrees of separation.")
         path = [(None, source)] + path
         for i in range(degrees):
@@ -100,11 +99,12 @@ def shortest_path(source, target):
 
     client = Node(state= source, parent=None, action=None)
 
-    path = 0
+    total_explored = 0
     explored = set()
     Queue = QueueFrontier()
         #Init Frontier
     Queue.add(client)
+    explored.add(client.state)
     node =  Queue.remove()
         #Add client to frontier, then remove
 
@@ -114,20 +114,27 @@ def shortest_path(source, target):
         neighbors = neighbors_for_person(node.state)
         for i in neighbors:
             if i not in explored:
-                child = (Node(state = i[1], parent = node, action = None))
+                child = (Node(state = i[1], parent = node, action = i[0]))
                 Queue.add(child)
+                explored.add(child.state)
             else:
                 pass
         node = Queue.remove()
-        explored.add(child.state)
-        path += 1
-        print(f"No solution found. Current actor id is {node.state}")
-    print(f"Solution Found. {path} actors were explored")
+        total_explored += 1
+        #print(explored)
+        #print(f"No solution found. Current actor id is {node.state}")
+    #print(f"Solution Found. {total_explored} actors were explored")
+    actions = []
+    states = []
+    while node.parent is not None:
+        actions.append(node.action)
+        states.append(node.state)
+        node = node.parent
+    actions.reverse()
+    states.reverse()
+    path = [actions, states]
+    print(path)
     
-
-
-
-
 def person_id_for_name(name):
     """
     Returns the IMDB id for a person's name,
