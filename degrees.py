@@ -55,7 +55,7 @@ def load_data(directory):
 def main():
     if len(sys.argv) > 2:
         sys.exit("Usage: python degrees.py [directory]")
-    directory = sys.argv[1] if len(sys.argv) == 2 else "small"
+    directory = sys.argv[1] if len(sys.argv) == 2 else "large"
 
     # Load data from files into memory
     print("Loading data...")
@@ -74,13 +74,12 @@ def main():
     if path is None:
         print("Not connected.")
     else:
-        degrees = len(path[0])
+        degrees = len(path[0]) - 1
         print(f"{degrees} degrees of separation.")
-        path = [(None, source)] + path
         for i in range(degrees):
-            person1 = people[path[i][1]]["name"]
-            person2 = people[path[i + 1][1]]["name"]
-            movie = movies[path[i + 1][0]]["title"]
+            person1 = people[path[0][i]]["name"]
+            person2 = people[path[0][i+1]]["name"]
+            movie = movies[path[1][i]]["title"]
             print(f"{i + 1}: {person1} and {person2} starred in {movie}")
 
 def neighbors_for_person(person_id):
@@ -131,9 +130,10 @@ def shortest_path(source, target):
         states.append(node.state)
         node = node.parent
     actions.reverse()
+    states.append(client.state)
     states.reverse()
-    path = [actions, states]
-    print(path)
+    path = (states, actions)
+    return path
     
 def person_id_for_name(name):
     """
