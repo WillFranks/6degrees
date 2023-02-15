@@ -55,7 +55,7 @@ def load_data(directory):
 def main():
     if len(sys.argv) > 2:
         sys.exit("Usage: python degrees.py [directory]")
-    directory = sys.argv[1] if len(sys.argv) == 2 else "large"
+    directory = sys.argv[1] if len(sys.argv) == 2 else "small"
 
     # Load data from files into memory
     print("Loading data...")
@@ -69,6 +69,7 @@ def main():
     if target is None:
         sys.exit("Person not found.")
 
+    shortest_path(source, target)
     path = shortest_path(source, target)
 
     if path is None:
@@ -83,17 +84,48 @@ def main():
             movie = movies[path[i + 1][0]]["title"]
             print(f"{i + 1}: {person1} and {person2} starred in {movie}")
 
+def neighbors_for_person(person_id):
+    """
+    Returns (movie_id, person_id) pairs for people
+    who starred with a given person.
+    """
+    movie_ids = people[person_id]["movies"]
+    neighbors = set()
+    for movie_id in movie_ids:
+        for person_id in movies[movie_id]["stars"]:
+            neighbors.add((movie_id, person_id))
+    return neighbors
 
 def shortest_path(source, target):
-    """
-    Returns the shortest list of (movie_id, person_id) pairs
-    that connect the source to the target.
 
-    If no possible path, returns None.
-    """
+    client = Node(state= source, parent=None, action=None)
 
-    # TODO
-    raise NotImplementedError
+    path = 0
+    explored = set()
+    Queue = QueueFrontier()
+        #Init Frontier
+    Queue.add(client)
+    node =  Queue.remove()
+        #Add client to frontier, then remove
+
+    explored.add(node.state)
+        #Loop
+    while node.state != target:
+        neighbors = neighbors_for_person(node.state)
+        for i in neighbors:
+            if i not in explored:
+                child = (Node(state = i[1], parent = node, action = None))
+                Queue.add(child)
+            else:
+                pass
+        node = Queue.remove()
+        explored.add(child.state)
+        path += 1
+        print(f"No solution found. Current actor id is {node.state}")
+    print(f"Solution Found. {path} actors were explored")
+    
+
+
 
 
 def person_id_for_name(name):
@@ -122,17 +154,6 @@ def person_id_for_name(name):
         return person_ids[0]
 
 
-def neighbors_for_person(person_id):
-    """
-    Returns (movie_id, person_id) pairs for people
-    who starred with a given person.
-    """
-    movie_ids = people[person_id]["movies"]
-    neighbors = set()
-    for movie_id in movie_ids:
-        for person_id in movies[movie_id]["stars"]:
-            neighbors.add((movie_id, person_id))
-    return neighbors
 
 
 if __name__ == "__main__":
